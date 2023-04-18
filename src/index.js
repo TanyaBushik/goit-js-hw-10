@@ -18,56 +18,71 @@ searchBox.addEventListener(
 function onCountrySearch(e) {
     e.preventDefault()
 
-    const countryName = searchBox.value.trim();
+  const countryName = searchBox.value.trim();
+  
     if (countryName === '') {
      clearInput();
       return;
     }
 
     fetchCountries(countryName)
-      .then(countries => {
-        if (countries.length > 10) {
+      .then(result => {
+        if (result.length > 10) {
           Notify.info(
-            'Too many matches found. Please enter a more specific name.'
-          );
-          clearInput();
+            'Too many matches found. Please enter a more specific name.');
           return;
         }
 
-          if (countries.length >= 2 && countries.length <= 10) {
-            
-               const listMarkup = countries.map(country =>
-                 countryListTemplate(country)
-               );
-               countryList.innerHTML = listMarkup.join('');
-               countryInfo.innerHTML = '';
-        //   const markupList = countries.map(
-        //     country => countryListTemplate(country),
-        //     (countryList.innerHTML = markupList.join('')),
-        //     (countryInfo.innerHTML = '')
-        //   );
-        }
+   if (result.length === 1) {
+     countryList.innerHTML = '';
+     countryInfo.innerHTML = countryCardTemplate(result);
 
-          if (countries.length === 1) {
-            
-              const markup = countries.map(country =>
-                countryCardTemplate(country)
-              );
-              countryInfo.innerHTML = markup.join('');
-              countryList.innerHTML = '';
-        //   const markup = countries.map(
-        //     country => countryCardTemplate(country),
-        //     (countryInfo.innerHTML = markup.join('')),
-        //     (countryList.innerHTML = '')
-        //   );
-        }
+    //  countryCardTemplate(result);
+   }
+
+   if (result.length >= 2 && result.length <= 10) {
+     countryInfo.innerHTML = '';
+     countryList.innerHTML = countryListTemplate(result);
+    //  countryListTemplate(result);
+   }
+
       })
         .catch(error => {
+            if(error.message === '404')
             Notify.failure('Oops, there is no country with that name');
             clearInput();
-            return error;
+            console.log(error);
       });
 }
+
+// const countryCardTemplate = data =>
+//   data.reduce(
+//     (acc, { flags: { svg }, name, capital, population, languages }) => {
+//       console.log(languages);
+//       languages = Object.values(languages).join(', ');
+//       console.log(name);
+//       return (
+//         acc +
+//         ` <img src="${svg}" alt="${name}" width="320" height="auto">
+//             <p> ${name.official}</p>
+//             <p>Capital: <span> ${capital}</span></p>
+//             <p>Population: <span> ${population}</span></p>
+//             <p>Languages: <span> ${languages}</span></p>`
+//       );
+//     },
+//     ''
+//   );
+
+  // const countryListTemplate = data =>
+  //   data.reduce((acc, { name: { official, common }, flags: { svg } }) => {
+  //     return (
+  //       acc +
+  //       `<li>
+  //       <img src="${svg}" alt="${common}" width="70">
+  //       <span>${official}</span>
+  //     </li>`
+  //     );
+  //   }, '');
 
 
 function clearInput() {
